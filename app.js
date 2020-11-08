@@ -62,6 +62,29 @@ Example Searches: 316, fodor, 2:30 PM, MW
 `;
 
 let sql = "SELECT * FROM cse316.classes;"
+
+if (filter == "allFeilds")
+    sql = `SELECT * FROM cse316.classes
+        WHERE Subj LIKE '%` + search + `%' OR
+        CRS LIKE '%` + search + `%' OR
+        Title LIKE '%` + search + `%' OR
+        Cmp LIKE '%` + search + `%' OR
+        Sctn LIKE '%` + search + `%' OR
+        Days LIKE '%` + search + `%' OR
+        Start_Time LIKE '%` + search + `%' OR
+        End_Time LIKE '%` + search + `%' OR
+        Mtg_Start_Date LIKE '%` + search + `%' OR
+        Mtg_End_Date LIKE '%` + search + `%' OR
+        Instruction_Mode LIKE '%` + search + `%' OR
+        Room LIKE '%` + search + `%' OR
+        Instructor LIKE '%` + search + `%' OR
+        Enrl_Cap LIKE '%` + search + `%' OR
+        Wait_Cap LIKE '%` + search + `%' OR
+        Cmbnd_Descr LIKE '%` + search + `%' OR
+        Cmbnd_Enrl_Cap LIKE '%` + search + `%'`;
+
+
+
 con.query(sql, function (err, result){
 if(err) throw err;
 for (let x of result){
