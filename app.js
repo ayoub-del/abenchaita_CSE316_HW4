@@ -83,7 +83,25 @@ if (filter == "allFeilds")
         Cmbnd_Descr LIKE '%` + search + `%' OR
         Cmbnd_Enrl_Cap LIKE '%` + search + `%'`;
 
-
+    else if (filter == "courseNum")
+        sql = `SELECT * FROM cse316.classes
+        WHERE CRS LIKE '%` + search + `%'`;
+    else if (filter == "courseName")
+        sql = `SELECT * FROM cse316.classes
+        WHERE Title LIKE '%` + search + `%'`;
+    else if (filter == "instructor")
+        sql = `SELECT * FROM cse316.classes
+        WHERE Instructor LIKE '%` + search + `%'`;
+    else if (filter == "instructor")
+        sql = `SELECT * FROM cse316.classes
+        WHERE Instructor LIKE '%` + search + `%'`;
+    else if (filter == "day")
+        sql = `SELECT * FROM cse316.classes
+        WHERE Days LIKE '%` + search + `%'`;
+    else if (filter == "time")
+        sql = `SELECT * FROM cse316.classes
+        WHERE Start_Time LIKE '%` + search + `%' OR
+        End_Time LIKE '%` + search + `%'`;
 
 con.query(sql, function (err, result){
 if(err) throw err;
