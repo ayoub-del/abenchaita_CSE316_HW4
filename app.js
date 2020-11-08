@@ -4,7 +4,6 @@ host: "localhost",
 user: "root",
  password: "pass4root", 
  port: 3306,
- database: "cse316"
 }); 
 
 var express = require("express");
@@ -38,11 +37,12 @@ let response = `
 <body> 
 
 <div style="display:inline-block;vertical-align:middle">
-    <img src="https://www.suny.edu/media/suny/content-assets/images/campus-profiles/logos/stonybrook.jpg" width="250" height="120">
+    <img src="https://upload.wikimedia.org/wikipedia/en/thumb/6/63/Stony_Brook_U_logo_horizontal.svg/1280px-Stony_Brook_U_logo_horizontal.svg.png" width="300" height="75">
 </div>
 <div style="display:inline-block;">
     <h2> &nbsp; &nbsp; CSE Class Find</h2>
-</div> <br>
+</div>
+<br></br>
 <form method ="get" action ="/">
 <b> Search </b> <input type="text" name="search" value="">
 <select name ="filter"> 
@@ -57,12 +57,44 @@ let response = `
 <br>
 Example Searches: 316, fodor, 2:30 PM, MW
 </Form>
-</body>
-</html>
+<br></br>
+<ol>
 `;
-res.write(response);
-res.end();
 
+let sql = "SELECT * FROM cse316.classes;"
+con.query(sql, function (err, result){
+if(err) throw err;
+for (let x of result){
+    response +=`
+    <li>
+    <b> CSE ` + x.CRS + ` - ` +
+    x.Title + ` - ` + x.Cmp + ` - Section ` + x.Sctn +`</b>
+    <pre> 
+        Days:                    `+ x.Days + `
+        Start Time:              `+ x.Start_Time + `
+        End Time:                `+ x.End_Time + `
+        Start Date:              `+ x.Mtg_Start_Date + `
+        End Date:                `+ x.Mtg_End_Date + `
+        Duration:                `+ x.Duration +` 
+        Instruction Mode:        `+ x.Instruction_Mode +`
+        Building:                `+ x.Building +` 
+        Room:                    `+ x.Room +`
+        Instructor:              `+ x.Instructor +`
+        Enrollment Cap:          `+ x.Enrl_Cap + `
+        Waitlist Cap:            `+ x.Wait_Cap + `
+        Combined Description:    `+ x.Cmbnd_Descr +`
+        Combined Enrollment Cap: `+ x.Cmbnd_Enrl_Cap +`
+        <form action="/schedule" method ="get">
+        <button name="add" value="` + [x.CRS,x.Sctn] + `"> Add Class </button></form> </pre>
+    </li>`
 
+    
 
 }
+res.write(response + "</ol>\n\n</body>\n</html>");
+res.end();
+
+});
+
+
+};
