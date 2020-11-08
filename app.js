@@ -112,8 +112,8 @@ for (let x of result){
     x.Title + ` - ` + x.Cmp + ` - Section ` + x.Sctn +`</b>
     <pre> 
         Days:                    `+ x.Days + `
-        Start Time:              `+ x.Start_Time + `
-        End Time:                `+ x.End_Time + `
+        Start Time:              `+ formatTime(x.Start_Time) + `
+        End Time:                `+ formatTime(x.End_Time) + `
         Start Date:              `+ x.Mtg_Start_Date + `
         End Date:                `+ x.Mtg_End_Date + `
         Duration:                `+ x.Duration +` 
@@ -136,6 +136,144 @@ res.write(response + "</ol>\n\n</body>\n</html>");
 res.end();
 
 });
+};
+
+function writeSchedule(req,res){
+let query = url.parse(req.url, true).query; 
+let id = query.add.split(",");
+let addQuery = `INSERT INTO cse316.saved SELECT * FROM cse316.classes WHERE cse316.classes.CRS="`+ id[0] +`" AND cse316.classes.Sctn="` +id[1] + `";`
+let response = `<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title> Schedule</title>
+  <style>
+    table {
+      border-collapse: collapse;
+    }
+
+    table,
+    td,
+    th {
+      border: 1px solid grey;
+    }
+
+    tr {
+      color: blue;
+    }
+    td {
+      height: 500px;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Schedule</h2>
+  <a href = "/"><b>Return to Search </b></a>
+  <br></br>
+  <table width="100%">
+    <thead>
+      <tr>
+        <th scope="col" style="background-color:lightgrey">Monday</th>
+        <th scope="col" style="background-color:lightgrey">Tuesday</th>
+        <th scope="col" style="background-color:lightgrey">Wendesday</th>
+        <th scope="col" style="background-color:lightgrey">Thursday</th>
+        <th scope="col" style="background-color:lightgrey">Friday</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Mon</td>
+        <td>Tue</td>
+        <td>Wed</td>
+        <td>Thu</td>
+        <td>Fri</td>
+      </tr>
+    </tbody>
+  </table>
 
 
+</body>
+</html>
+
+`
+
+
+
+con.query(addQuery, function (err, result){
+    if(err) console.log(err);
+    con.query("SELECT * FROM cse316.saved WHERE cse316.saved.Days LIKE '%M%' ORDER BY cse316.saved.Start_time;",function(err,result){
+        if(err) console.log(err);
+        response = response.replace("<td>Mon</td>", getDay(result));
+        con.query("SELECT * FROM cse316.saved WHERE cse316.saved.Days LIKE '%TU%' ORDER BY cse316.saved.Start_time;",function(err,result){
+            if(err) console.log(err);
+            response = response.replace("<td>Tue</td>", getDay(result));
+            con.query("SELECT * FROM cse316.saved WHERE cse316.saved.Days LIKE '%W%' ORDER BY cse316.saved.Start_time;",function(err,result){
+                if(err) console.log(err);
+                response = response.replace("<td>Wed</td>", getDay(result));
+                con.query("SELECT * FROM cse316.saved WHERE cse316.saved.Days LIKE '%TH%' ORDER BY cse316.saved.Start_time;",function(err,result){
+                    if(err) console.log(err);
+                    response = response.replace("<td>Thu</td>", getDay(result));
+                    con.query("SELECT * FROM cse316.saved WHERE cse316.saved.Days LIKE '%F%' ORDER BY cse316.saved.Start_time;",function(err,result){
+                        if(err) console.log(err);
+                        response = response.replace("<td>Fri</td>", getDay(result));
+                        res.write(response);
+                        res.end();
+                    });
+
+                });
+
+            });   
+        
+        });
+        
+    });
+});
+
+};
+
+function getDay(result){
+let retStr = "<td>";
+let lastEnd = new Date();
+lastEnd.setHours(0);
+lastEnd.setMinutes(0);
+for (let x of result){
+    let current = new Date();
+    temp = x.Start_Time.split(":");
+    current.setHours(temp[0]);
+    current.setMinutes(temp[1]);
+    if(current > lastEnd){
+        retStr += "\n <b> " + formatTime(x.Start_Time) + " - " +
+        formatTime(x.End_Time) + " <br><br>"+
+        x.Subj + " " + 
+        x.CRS + "-" + 
+        x.Sctn + " </b> <p> "+
+        x.Title +" <br><br>" +
+        x.Instructor + "<br><br>"+
+        "<br/><br/>";
+        temp = x.End_Time.split(":");
+        lastEnd.setHours(temp[0]);
+        lastEnd.setMinutes(temp[1]);
+    }
+}
+
+return retStr + "</td>";
+
+};
+
+
+function formatTime(time) {
+    temp = time.split(":");
+    var h = temp[0];
+    var m = temp[1]; 
+    var hh = "AM";
+    if (h > 12){
+        h = h - 12;
+        hh = "PM";
+    }
+    if (h == 0){
+    h = 12;
+    }
+    return h+":"+m+" "+hh;
 };
